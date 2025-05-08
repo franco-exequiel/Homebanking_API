@@ -58,14 +58,15 @@ fintech_api/
 
 3. Configurá el archivo .env:
 
-    ```DATABASE_URL=postgresql+asyncpg://postgres:tu_contraseña@localhost:5432/fintech_db
+    ``` 'DATABASE_URL=postgresql+asyncpg://postgres:tu_contraseña@localhost:5432/fintech_db'
     ```DEBUG=true
 
 
 4. Creá la base de datos fintech_db desde psql si no existe:
-
+    
+    ```bash
+    ```psql
     ```CREATE DATABASE fintech_db;
-
 
 5. Ejecutá el script para crear las tablas:
 
@@ -79,11 +80,15 @@ fintech_api/
 
 
 ## 📫 Endpoints iniciales
-Método	    Ruta	    Descripción
-POST	    /users	    Registrar nuevo usuario
-GET	        /users	    Listar usuarios
-GET	        /accounts	Ver cuenta de un usuario
-POST	    /transfer	Enviar dinero (más adelante)
+### Método: GET
+Rutas:
+/users -> Listar Usuarios
+/accounts -> Ver cuenta de un usuario
+
+### Método: POST
+Rutas:
+/users -> Registrar nuevo usuario
+/transfer -> Enviar dinero (En progreso)
 
 
 ## ✍️ Autor
