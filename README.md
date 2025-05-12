@@ -91,6 +91,35 @@ Rutas:
 /transfer -> Enviar dinero (En progreso)
 
 
+## 📘 Alembic & Migraciones – Configuración y Uso
+### 🔧 Configuración de Alembic
+Este proyecto usa SQLAlchemy en modo asincrónico (asyncpg) para la app, pero Alembic requiere una conexión sincrónica (psycopg2) para autogenerar migraciones.
+
+Por eso:
+* alembic.ini contiene un placeholder en sqlalchemy.url.
+* La conexión real a la base de datos se obtiene desde el archivo .env.
+
+📂 .env
+Asegurate de tener un archivo .env en la raíz del proyecto con al menos esta variable:
+    
+    ```bash
+    ```DATABASE_URL=postgresql+asyncpg://usuario:password@localhost:5432/tu_base
+Alembic convertirá internamente esta URL a psycopg2 para poder conectarse en modo sincrónico.
+
+### 🧠 ¿Por qué no se usa async en Alembic?
+SQLAlchemy async (async_engine) no es compatible con Alembic directamente, ya que Alembic se ejecuta de forma sincrónica.
+Para resolver esto, en alembic/env.py se realiza una transformación automática de la URL de conexión:
+
+```bash
+```import os
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    DATABASE_URL = os.getenv("DATABASE_URL").replace("asyncpg", "psycopg2")
+    config.set_main_option("sqlalchemy.url", DATABASE_URL)
+```
+Esto permite que Alembic se conecte sincrónicamente solo para inspeccionar el esquema y generar migraciones.
+
 ## ✍️ Autor
 Franco Exequiel Fernández
 📧 [Gmail:](frexe007@gmail.com)
