@@ -6,6 +6,7 @@ Base = declarative_base()
 
 engine = create_async_engine(settings.DATABASE_URL, echo=settings.DEBUG)
 
+
 async_session = sessionmaker(
     bind=engine,
     class_=AsyncSession,

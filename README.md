@@ -34,11 +34,21 @@ fintech_api/
 │ │ └── accounts.py
 │ ├── services/
 │ │ └── auth.py
-├── app/scripts/
-│ └── init_db.py
+├── alembic/
+│ ├── env.py
+│ └── script.py.mako
+├── tests/
+│ └── test_users.py
+├── deploy/
+│ ├── Dockerfile
+│ ├── docker-compose.yml
+│ ├── .dockerignore
+│ └── entrypoint.sh 
 ├── .env
+├── .gitignore
 ├── requirements.txt
 └── README.md
+└── alembic.ini
 
 ---
 
@@ -119,6 +129,65 @@ Para resolver esto, en alembic/env.py se realiza una transformación automática
     config.set_main_option("sqlalchemy.url", DATABASE_URL)
 ```
 Esto permite que Alembic se conecte sincrónicamente solo para inspeccionar el esquema y generar migraciones.
+
+
+## 🐳 Docker y Docker Compose
+Para facilitar el despliegue del proyecto HomeBanking_API, se utilizó Docker para contenerizar la aplicación y PostgreSQL como base de datos. Toda la configuración se encuentra dentro de la carpeta infraestructure/.
+
+### 📁 Estructura Docker
+deploy/
+├── Dockerfile                # Imagen de la API en FastAPI
+├── docker-compose.yml        # Orquestación de contenedores
+├── .dockerignore             # Exclusión de archivos innecesarios para la imagen
+└── entrypoint.sh             # Se ejecuta automáticamente con la configuración correspondiente cuando se levanta el contenedor
+
+### ⚙️ Dockerfile
+El Dockerfile construye una imagen de la API, basada en Python, instalando dependencias desde requirements.txt y exponiendo el servicio en el puerto 8000.
+
+### 🧪 docker-compose.yml
+Este archivo define dos servicios:
+* web: contenedor que corre la API con Uvicorn
+* db: contenedor de PostgreSQL (usando la imagen oficial, versión 17)
+
+Ambos servicios comparten una red Docker y usan volúmenes persistentes para la base de datos.
+
+```bash
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: infraestructure/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ../.env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: fintech_db
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
+```
+### 🔒 Variables de Entorno
+La configuración sensible (como credenciales de la base de datos) se carga desde el archivo .env, que no debe subirse al repositorio. Asegurate de tenerlo en el mismo nivel que docker-compose.yml.
+
+```bash
+POSTGRES_USER=usuario
+POSTGRES_PASSWORD=contraseña
+DATABASE_URL=postgresql+asyncpg://usuario:contraseña@db:5432/nombre_db
+```
+
+
 
 ## ✍️ Autor
 Franco Exequiel Fernández

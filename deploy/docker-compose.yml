@@ -1,0 +1,29 @@
+
+
+services:
+  db:
+    image: postgres:17
+    container_name: fintech_db
+    env_file:
+     - ../deploy/.env.docker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: homebanking_api
+    env_file:
+      - ../deploy/.env.docker
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/code
+
+volumes:
+  postgres_data:

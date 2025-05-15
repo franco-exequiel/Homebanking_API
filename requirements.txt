@@ -6,3 +6,5 @@ python-dotenv
 passlib[bcrypt]
 pydantic
 pydantic[email]
+alembic
+psycopg2-binary
